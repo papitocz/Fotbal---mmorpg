@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotbalová MMORPG – Inventář & Ukládání</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .inventory, .stats {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .item {
+            background-color: #eee;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fotbalová MMORPG – Inventář & Ukládání</h1>
+
+    <div class="stats">
+        <h2>Statistiky</h2>
+        <p>Level: <span id="level">1</span></p>
+        <p>XP: <span id="xp">0</span> / <span id="xpMax">100</span></p>
+        <p>Mince: <span id="coins">50</span></p>
+        <button onclick="gainXP(20)">Získat 20 XP</button>
+    </div>
+
+    <div class="inventory">
+        <h2>Inventář</h2>
+        <div id="inventoryList"></div>
+        <button onclick="addItem()">Přidat náhodný předmět</button>
+    </div>
+
+    <script>
+        // Ukládání a načítání
+        let player = {
+            level: 1,
+            xp: 0,
+            xpMax: 100,
+            coins: 50,
+            inventory: []
+        };
+
+        function saveGame() {
+            localStorage.setItem("fotbalMMORPG", JSON.stringify(player));
+        }
+
+        function loadGame() {
+            let data = localStorage.getItem("fotbalMMORPG");
+            if (data) {
+                player = JSON.parse(data);
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById("level").innerText = player.level;
+            document.getElementById("xp").innerText = player.xp;
+            document.getElementById("xpMax").innerText = player.xpMax;
+            document.getElementById("coins").innerText = player.coins;
+
+            let inv = document.getElementById("inventoryList");
+            inv.innerHTML = "";
+            player.inventory.forEach((item, index) => {
+                inv.innerHTML += `<div class="item">${item} <button onclick="removeItem(${index})">X</button></div>`;
+            });
+        }
+
+        function gainXP(amount) {
+            player.xp += amount;
+            if (player.xp >= player.xpMax) {
+                player.xp -= player.xpMax;
+                player.level++;
+                player.xpMax = Math.floor(player.xpMax * 1.2);
+            }
+            saveGame();
+            updateUI();
+        }
+
+        function addItem() {
+            const items = ["Obyčejné kopačky +1 Rychlost", "Epický dres +3 Výdrž", "Legendární rukavice +5 Reflexy"];
+            const item = items[Math.floor(Math.random() * items.length)];
+            player.inventory.push(item);
+            saveGame();
+            updateUI();
+        }
+
+        function removeItem(index) {
+            player.inventory.splice(index, 1);
+            saveGame();
+            updateUI();
+        }
+
+        loadGame();
+    </script>
+</body>
+</html>
